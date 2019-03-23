@@ -1,121 +1,117 @@
 // Requires
 var express = require('express');
-var bcrypt = require('bcryptjs');
-
-var auth = require('../middlewares/auth')
-
+var auth = require('../middlewares/auth');
 var app = express();
+var Doctor = require('../models/doctor');
 
-var User = require('../models/user');
-
-// Get all users
+// Get all doctors
 app.get('/', (req, res) => {
-    User.find({}, 'name email img role').exec((err, users) => {
+    Doctor.find({}, 'name image user hospital').exec((err, doctors) => {
         if (err)
             return res.status(500).json({
                 ok: false,
-                message: 'error loading users',
+                message: 'error loading doctors',
                 errors: err
             });
 
         res.status(200).json({
             ok: true,
-            users: users
+            doctors: doctors
         });
     });
 });
 
-// Create new user
+// Create new doctor
 app.post('/', auth.validateToken, (req, res) => {
     var body = req.body;
-    var user = new User({
+    var doctor = new Doctor({
         name: body.name,
-        email: body.email,
-        password: bcrypt.hashSync(body.password, 10),
-        img: body.img,
-        role: body.role
+        image: body.image,
+        user: req.user._id,
+        hospital: body.hospital
     });
 
-    user.save((err, userSaved) => {
+    doctor.save((err, doctorSaved) => {
         if (err)
             return res.status(400).json({
                 ok: false,
-                message: 'error creating user',
+                message: 'error creating doctor',
                 errors: err
             });
 
         res.status(201).json({
             ok: true,
-            user: userSaved,
+            doctor: doctorSaved,
             requestUser: req.user
         });
     });
 });
 
-// Update user
+// Update doctor
 app.put('/:id', auth.validateToken, (req, res) => {
     var id = req.params.id;
 
-    User.findById(id, (err, usr) => {
+    Doctor.findById(id, (err, doctor) => {
         if (err)
             return res.status(500).json({
                 ok: false,
-                message: 'error searching user',
+                message: 'error searching doctor',
                 errors: err
             });
 
-        if (!usr)
+        if (!doctor)
             return res.status(400).json({
                 ok: false,
-                message: "user doesn't exists",
+                message: "doctor doesn't exists",
                 errors: err
             });
 
         var body = req.body;
 
-        usr.name = body.name;
-        usr.email = body.email;
-        usr.role = body.role;
+        doctor.name = body.name;
+        doctor.image = body.image;
+        doctor.hospital = body.hospital;
+        doctor.user = req.user._id;
 
-        usr.save((err, userSaved) => {
+        doctor.save((err, doctorSaved) => {
             if (err)
                 return res.status(400).json({
                     ok: false,
-                    message: 'error updating user',
+                    message: 'error updating hospital',
                     errors: err
                 });
 
-            userSaved.password = ':D';
+            doctorSaved.password = ':D';
             res.status(200).json({
                 ok: true,
-                user: userSaved
+                doctor: doctorSaved
             });
         });
     });
 });
 
-// Delete user
+// Delete doctor
 app.delete('/:id', auth.validateToken, (req, res) => {
     var id = req.params.id;
 
-    User.findByIdAndRemove(id, (err, usr) => {
+    Doctor.findByIdAndRemove(id, (err, doctor) => {
         if (err)
             return res.status(500).json({
                 ok: false,
-                message: 'error while deleting user',
+                message: 'error while deleting doctor',
                 errors: err
             });
 
-        if (!usr)
+        if (!doctor)
             return res.status(400).json({
                 ok: false,
-                message: 'user did\'t exists',
+                message: 'doctor doesn\'t exists',
                 errors: err
             });
 
         res.status(200).json({
             ok: true,
-            user: usr
+            doctor: doctor
         });
     });
 });
