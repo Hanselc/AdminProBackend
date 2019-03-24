@@ -7,19 +7,29 @@ var Hospital = require('../models/hospital');
 
 // Get all hospitals
 app.get('/', (req, res) => {
-    Hospital.find({}, 'name image user').exec((err, hospitals) => {
-        if (err)
-            return res.status(500).json({
-                ok: false,
-                message: 'error loading hospitals',
-                errors: err
-            });
 
-        res.status(200).json({
-            ok: true,
-            hospitals: hospitals
+    var from = req.query.from || 0;
+    from = Number(from);
+
+    Hospital.find({}, 'name image user')
+        .skip(from)
+        .limit(5)
+        .populate('user', 'name email').exec((err, hospitals) => {
+            if (err)
+                return res.status(500).json({
+                    ok: false,
+                    message: 'error loading hospitals',
+                    errors: err
+                });
+
+            Hospital.count({}, (err, count) => {
+                res.status(200).json({
+                    ok: true,
+                    hospitals: hospitals,
+                    total: count
+                });
+            });
         });
-    });
 });
 
 // Create new hospital

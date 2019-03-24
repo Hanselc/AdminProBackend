@@ -6,19 +6,30 @@ var Doctor = require('../models/doctor');
 
 // Get all doctors
 app.get('/', (req, res) => {
-    Doctor.find({}, 'name image user hospital').exec((err, doctors) => {
-        if (err)
-            return res.status(500).json({
-                ok: false,
-                message: 'error loading doctors',
-                errors: err
-            });
 
-        res.status(200).json({
-            ok: true,
-            doctors: doctors
+    var from = req.query.from || 0;
+    from = Number(from);
+
+    Doctor.find({}, 'name image user hospital')
+        .skip(from)
+        .limit(5)
+        .populate('user', 'name email')
+        .populate('hospital')
+        .exec((err, doctors) => {
+            if (err)
+                return res.status(500).json({
+                    ok: false,
+                    message: 'error loading doctors',
+                    errors: err
+                });
+            Doctor.count({}, (err, count) => {
+                res.status(200).json({
+                    ok: true,
+                    doctors: doctors,
+                    total: count
+                });
+            });
         });
-    });
 });
 
 // Create new doctor

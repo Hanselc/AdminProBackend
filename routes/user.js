@@ -10,19 +10,29 @@ var User = require('../models/user');
 
 // Get all users
 app.get('/', (req, res) => {
-    User.find({}, 'name email img role').exec((err, users) => {
-        if (err)
-            return res.status(500).json({
-                ok: false,
-                message: 'error loading users',
-                errors: err
-            });
 
-        res.status(200).json({
-            ok: true,
-            users: users
+    var from = req.query.from || 0;
+    from = Number(from);
+
+    User.find({}, 'name email image role')
+        .skip(from)
+        .limit(5)
+        .exec((err, users) => {
+            if (err)
+                return res.status(500).json({
+                    ok: false,
+                    message: 'error loading users',
+                    errors: err
+                });
+
+            User.count({}, (err, count) => {
+                res.status(200).json({
+                    ok: true,
+                    users: users,
+                    total: count
+                });
+            });
         });
-    });
 });
 
 // Create new user
@@ -32,7 +42,7 @@ app.post('/', auth.validateToken, (req, res) => {
         name: body.name,
         email: body.email,
         password: bcrypt.hashSync(body.password, 10),
-        img: body.img,
+        image: body.image,
         role: body.role
     });
 
@@ -76,6 +86,7 @@ app.put('/:id', auth.validateToken, (req, res) => {
         usr.name = body.name;
         usr.email = body.email;
         usr.role = body.role;
+        usr.image = body.image;
 
         usr.save((err, userSaved) => {
             if (err)
