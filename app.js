@@ -3,6 +3,9 @@ var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 
+// Middlewares
+var cors = require('./middlewares/cors')
+
 var appRoutes = require('./routes/app');
 var userRoutes = require('./routes/user');
 var loginRoutes = require('./routes/login');
@@ -15,6 +18,10 @@ var imageRoutes = require('./routes/image');
 
 // Initialize
 var app = express();
+
+// CORS
+app.use(cors.corsValidator);
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -24,7 +31,7 @@ mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, res) =
     console.log('MongoDb listening on port: \x1b[32m%s\x1b[0m', '27017');
 });
 
-// Serve Index Config
+// Serve Static Files
 // var serveIndex = require('serve-index');
 // app.use(express.static(__dirname + '/'));
 // app.use('/uploads', serveIndex(__dirname + '/upload'));

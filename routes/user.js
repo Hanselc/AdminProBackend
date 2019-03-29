@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 });
 
 // Create new user
-app.post('/', auth.validateToken, (req, res) => {
+app.post('/', (req, res) => {
     var body = req.body;
     var user = new User({
         name: body.name,
