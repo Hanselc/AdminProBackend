@@ -90,7 +90,7 @@ function uploadByType(type, id, fileName, response) {
                     return response.status(200).json({
                         ok: true,
                         message: 'Successful uploaded',
-                        [type]: resSaved
+                        user: resSaved
                     });
                 });
             });
@@ -119,7 +119,7 @@ function uploadByType(type, id, fileName, response) {
                     return response.status(200).json({
                         ok: true,
                         message: 'Successful uploaded',
-                        [type]: resSaved
+                        doctor: resSaved
                     });
                 });
             });
@@ -148,7 +148,7 @@ function uploadByType(type, id, fileName, response) {
                     return response.status(200).json({
                         ok: true,
                         message: 'Successful uploaded',
-                        [type]: resSaved
+                        hospital: resSaved
                     });
                 });
             });
