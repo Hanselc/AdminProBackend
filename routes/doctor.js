@@ -32,6 +32,34 @@ app.get('/', (req, res) => {
         });
 });
 
+// Get a specific doctor
+app.get('/:id', (req, res) => {
+    var id = req.params.id;
+
+    Doctor.findById(id)
+        .populate('user', 'name email image')
+        .populate('hospital')
+        .exec((err, doctor) => {
+            if (err)
+                return res.status(500).json({
+                    ok: false,
+                    message: 'error searching doctor',
+                    errors: err
+                });
+
+            if (!doctor)
+                return res.status(400).json({
+                    ok: false,
+                    message: "doctor doesn't exists",
+                    errors: err
+                });
+            res.status(201).json({
+                ok: true,
+                doctor: doctor
+            });
+        });
+});
+
 // Create new doctor
 app.post('/', auth.validateToken, (req, res) => {
     var body = req.body;
