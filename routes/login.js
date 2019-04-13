@@ -7,11 +7,21 @@ var SEED = require('../config/config').SEED;
 
 var app = express();
 var User = require('../models/user');
+var auth = require('../middlewares/auth');
 
 // Google
 var CLIENT_ID = require('../config/config').CLIENT_ID;
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
+
+// Refresh Token
+app.get('/renewtoken', auth.validateToken, (req, res) => {
+    var token = jwt.sign({ user: req.user }, SEED, { expiresIn: 14400 });
+    res.status(200).json({
+        ok: true,
+        token: token
+    });
+});
 
 // Google Auth
 async function verify(token) {

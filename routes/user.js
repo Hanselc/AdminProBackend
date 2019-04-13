@@ -2,7 +2,7 @@
 var express = require('express');
 var bcrypt = require('bcryptjs');
 
-var auth = require('../middlewares/auth')
+var auth = require('../middlewares/auth');
 
 var app = express();
 
