@@ -10,7 +10,7 @@ var User = require('../models/user');
 
 // Google
 var CLIENT_ID = require('../config/config').CLIENT_ID;
-const {OAuth2Client} = require('google-auth-library');
+const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
 
 // Google Auth
@@ -26,14 +26,14 @@ async function verify(token) {
         image: payload.picture,
         google: true
     };
-  }
+}
 
-app.post('/google', async (req, res) => {
+app.post('/google', async(req, res) => {
 
     var token = req.body.token;
 
     var googleUser = await verify(token)
-        .catch( e => {
+        .catch(e => {
             return res.status(400).json({
                 ok: false,
                 message: 'Cannot login',
@@ -41,7 +41,7 @@ app.post('/google', async (req, res) => {
             });
         });
 
-    User.findOne({email: googleUser.email}, (err, usr) => {
+    User.findOne({ email: googleUser.email }, (err, usr) => {
         if (err)
             return res.status(500).json({
                 ok: false,
@@ -49,8 +49,8 @@ app.post('/google', async (req, res) => {
                 errors: err
             });
 
-        if(usr) {
-            if(!usr.google) {
+        if (usr) {
+            if (!usr.google) {
                 return res.status(400).json({
                     ok: false,
                     message: 'Cannot login',
@@ -64,7 +64,8 @@ app.post('/google', async (req, res) => {
                     ok: true,
                     user: usr,
                     id: usr.id,
-                    token: token
+                    token: token,
+                    menu: getMenu(usr.role)
                 });
             }
         } else {
@@ -76,13 +77,13 @@ app.post('/google', async (req, res) => {
             user.password = ':D';
 
             user.save((err, userSaved) => {
-                if (err)
+                if (err) {
                     return res.status(400).json({
                         ok: false,
                         message: 'Error creating user',
                         errors: err
                     });
-        
+                }
                 // Create token
                 var token = jwt.sign({ user: userSaved }, SEED, { expiresIn: 14400 });
 
@@ -90,10 +91,11 @@ app.post('/google', async (req, res) => {
                     ok: true,
                     user: userSaved,
                     id: userSaved._id,
-                    token: token
+                    token: token,
+                    menu: getMenu(userSaved.role)
                 });
             });
-        }        
+        }
     });
 });
 
@@ -133,9 +135,37 @@ app.post('/', (req, res) => {
             ok: true,
             user: usr,
             id: usr._id,
-            token: token
+            token: token,
+            menu: getMenu(usr.role)
         });
     });
 });
+
+function getMenu(role) {
+    var menu = [{
+            title: 'Principal',
+            icon: 'mdi mdi-gauge',
+            submenu: [
+                { title: 'Dashboard', url: '/dashboard' },
+                { title: 'ProgressBar', url: '/progress-page' },
+                { title: 'Graphs', url: '/graphs1' },
+                { title: 'Promises', url: '/promises' },
+                { title: 'RxJs', url: '/rxjs' },
+            ]
+        },
+        {
+            title: 'Configuraciones',
+            icon: 'mdi mdi-folder-lock-open',
+            submenu: [
+                { title: 'Hospitales', url: '/hospitals' },
+                { title: 'Médicos', url: '/doctors' }
+            ]
+        }
+    ];
+    if (role === 'ADMIN_ROLE') {
+        menu[1].submenu.unshift({ title: 'Usuarios', url: '/users' });
+    }
+    return menu;
+}
 
 module.exports = app;

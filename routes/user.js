@@ -63,7 +63,7 @@ app.post('/', (req, res) => {
 });
 
 // Update user
-app.put('/:id', auth.validateToken, (req, res) => {
+app.put('/:id', [auth.validateToken, auth.validateAdminOrSUser], (req, res) => {
     var id = req.params.id;
 
     User.findById(id, (err, usr) => {
@@ -106,7 +106,7 @@ app.put('/:id', auth.validateToken, (req, res) => {
 });
 
 // Delete user
-app.delete('/:id', auth.validateToken, (req, res) => {
+app.delete('/:id', [auth.validateToken, auth.validateAdmin], (req, res) => {
     var id = req.params.id;
 
     User.findByIdAndRemove(id, (err, usr) => {

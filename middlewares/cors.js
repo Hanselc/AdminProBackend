@@ -1,5 +1,3 @@
-
-
 // Cors Options
 exports.corsValidator = function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");

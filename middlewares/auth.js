@@ -18,3 +18,37 @@ exports.validateToken = function(req, res, next) {
         next();
     });
 };
+
+// Validate Admin
+exports.validateAdmin = function(req, res, next) {
+
+    var user = req.user;
+
+    if (user.role === 'ADMIN_ROLE') {
+        next();
+        return;
+    } else {
+        return res.status(401).json({
+            ok: false,
+            message: 'invalid token',
+            errors: { message: 'invalid token' }
+        });
+    }
+};
+
+// Validate Admin or same user
+exports.validateAdminOrSUser = function(req, res, next) {
+    var user = req.user;
+    var id = req.params.id;
+
+    if (user.role === 'ADMIN_ROLE' || user._id === id) {
+        next();
+        return;
+    } else {
+        return res.status(401).json({
+            ok: false,
+            message: 'invalid token',
+            errors: { message: 'invalid token' }
+        });
+    }
+};

@@ -60,7 +60,7 @@ app.get('/all/:search', (req, res) => {
 function searchHospitals(regexp) {
     return new Promise((resolve, reject) => {
         Hospital.find({ name: regexp })
-            .populate('user', 'name email')
+            .populate('user', 'name email image')
             .exec((err, hosp) => {
                 if (err)
                     reject('error loading hospitals');
@@ -74,7 +74,7 @@ function searchDoctors(regexp) {
     return new Promise((resolve, reject) => {
         Doctor
             .find({ name: regexp })
-            .populate('user', 'name email')
+            .populate('user', 'name email image')
             .populate('hospital')
             .exec((err, doctor) => {
                 if (err)
@@ -87,7 +87,7 @@ function searchDoctors(regexp) {
 
 function searchUsers(regexp) {
     return new Promise((resolve, reject) => {
-        User.find({}, 'name email role')
+        User.find({}, 'name email role image')
             .or([{ name: regexp }, { email: regexp }])
             .exec((err, user) => {
                 if (err)
